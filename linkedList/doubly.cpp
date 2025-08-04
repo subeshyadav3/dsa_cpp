@@ -10,27 +10,30 @@ struct Node {
 
 struct Node list[MAX];
 int head = -1;
+int freeIndex = 0;
+
+int getFreeNode() {
+    if (freeIndex >= MAX) return -1;
+    list[freeIndex].next = -1;
+    list[freeIndex].prev = -1;
+    return freeIndex++;
+}
 
 void insertAtBeginning(int value) {
-    int newNode = 0;
-    while (list[newNode].next != -1 && newNode < MAX) newNode++;
-    if (newNode >= MAX) return;
+    int newNode = getFreeNode();
+    if (newNode == -1) return;
 
     list[newNode].data = value;
     list[newNode].next = head;
     list[newNode].prev = -1;
 
-    if (head != -1) {
-        list[head].prev = newNode;
-    }
-
+    if (head != -1) list[head].prev = newNode;
     head = newNode;
 }
 
 void insertAtEnd(int value) {
-    int newNode = 0;
-    while (list[newNode].next != -1 && newNode < MAX) newNode++;
-    if (newNode >= MAX) return;
+    int newNode = getFreeNode();
+    if (newNode == -1) return;
 
     list[newNode].data = value;
     list[newNode].next = -1;
@@ -42,9 +45,7 @@ void insertAtEnd(int value) {
     }
 
     int temp = head;
-    while (list[temp].next != -1) {
-        temp = list[temp].next;
-    }
+    while (list[temp].next != -1) temp = list[temp].next;
 
     list[temp].next = newNode;
     list[newNode].prev = temp;
@@ -52,42 +53,31 @@ void insertAtEnd(int value) {
 
 void insertAfter(int prevValue, int value) {
     int temp = head;
-    while (temp != -1 && list[temp].data != prevValue) {
-        temp = list[temp].next;
-    }
-
+    while (temp != -1 && list[temp].data != prevValue) temp = list[temp].next;
     if (temp == -1) return;
 
-    int newNode = 0;
-    while (list[newNode].next != -1 && newNode < MAX) newNode++;
-    if (newNode >= MAX) return;
+    int newNode = getFreeNode();
+    if (newNode == -1) return;
 
     list[newNode].data = value;
     list[newNode].next = list[temp].next;
     list[newNode].prev = temp;
-    if (list[temp].next != -1) {
-        list[list[temp].next].prev = newNode;
-    }
+
+    if (list[temp].next != -1) list[list[temp].next].prev = newNode;
     list[temp].next = newNode;
 }
 
 void deleteFromBeginning() {
     if (head == -1) return;
-
     int temp = head;
     head = list[head].next;
-    if (head != -1) {
-        list[head].prev = -1;
-    }
+    if (head != -1) list[head].prev = -1;
 }
 
 void deleteFromEnd() {
     if (head == -1) return;
-
     int temp = head;
-    while (list[temp].next != -1) {
-        temp = list[temp].next;
-    }
+    while (list[temp].next != -1) temp = list[temp].next;
 
     if (list[temp].prev != -1) {
         list[list[temp].prev].next = -1;
@@ -98,17 +88,12 @@ void deleteFromEnd() {
 
 void deleteAfter(int value) {
     int temp = head;
-    while (temp != -1 && list[temp].data != value) {
-        temp = list[temp].next;
-    }
-
+    while (temp != -1 && list[temp].data != value) temp = list[temp].next;
     if (temp == -1 || list[temp].next == -1) return;
 
     int delNode = list[temp].next;
     list[temp].next = list[delNode].next;
-    if (list[delNode].next != -1) {
-        list[list[delNode].next].prev = temp;
-    }
+    if (list[delNode].next != -1) list[list[delNode].next].prev = temp;
 }
 
 void display() {

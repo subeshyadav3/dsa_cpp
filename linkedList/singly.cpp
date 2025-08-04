@@ -1,88 +1,151 @@
-#include<iostream>
+#include <iostream>
 using namespace std;
 
-class Node {
-public:
+struct Node {
     int data;
     Node* next;
-
-    Node(int val) {
-        this->data = val;
-        this->next = nullptr;
-    }
 };
 
-void InsertAtHead(Node* &head, int d) {
-    Node* temp = new Node(d);
-    temp->next = head;
+Node* head = nullptr;
+
+void insertAtBeginning(int value) {
+    Node* temp = new Node{value, head};
     head = temp;
 }
 
-void InsertAtTail(Node* &tail, int d) {
-    Node* temp = new Node(d);
-    tail->next = temp;
-    tail = temp;
+void insertAtEnd(int value) {
+    Node* temp = new Node{value, nullptr};
+    if (!head) {
+        head = temp;
+        return;
+    }
+    Node* curr = head;
+    while (curr->next) curr = curr->next;
+    curr->next = temp;
 }
 
-void InsertAtPosition(Node* &head, Node* &tail, int pos, int d) {
+void insertAfter(int key, int value) {
+    Node* curr = head;
+    while (curr && curr->data != key) curr = curr->next;
+    if (curr) {
+        Node* temp = new Node{value, curr->next};
+        curr->next = temp;
+    }
+}
+
+void insertBefore(int key, int value) {
+    if (!head) return;
+    if (head->data == key) {
+        insertAtBeginning(value);
+        return;
+    }
+    Node* curr = head;
+    while (curr->next && curr->next->data != key) curr = curr->next;
+    if (curr->next) {
+        Node* temp = new Node{value, curr->next};
+        curr->next = temp;
+    }
+}
+
+void insertAtPosition(int pos, int value) {
+    if (pos <= 1) {
+        insertAtBeginning(value);
+        return;
+    }
+    Node* curr = head;
+    for (int i = 1; i < pos - 1 && curr; ++i)
+        curr = curr->next;
+    if (curr) {
+        Node* temp = new Node{value, curr->next};
+        curr->next = temp;
+    }
+}
+
+void deleteFromBeginning() {
+    if (!head) return;
+    Node* temp = head;
+    head = head->next;
+    delete temp;
+}
+
+void deleteFromEnd() {
+    if (!head) return;
+    if (!head->next) {
+        delete head;
+        head = nullptr;
+        return;
+    }
+    Node* curr = head;
+    while (curr->next->next) curr = curr->next;
+    delete curr->next;
+    curr->next = nullptr;
+}
+
+void deleteAfter(int key) {
+    Node* curr = head;
+    while (curr && curr->data != key) curr = curr->next;
+    if (curr && curr->next) {
+        Node* temp = curr->next;
+        curr->next = temp->next;
+        delete temp;
+    }
+}
+
+void deleteFromPosition(int pos) {
+    if (!head) return;
     if (pos == 1) {
-        InsertAtHead(head, d);
+        deleteFromBeginning();
         return;
     }
-
-    Node* temp = head;
-    int count = 1;
-
-    while (count < pos - 1 && temp != nullptr) {
-        temp = temp->next;
-        count++;
+    Node* curr = head;
+    for (int i = 1; i < pos - 1 && curr; ++i)
+        curr = curr->next;
+    if (curr && curr->next) {
+        Node* temp = curr->next;
+        curr->next = temp->next;
+        delete temp;
     }
-
-    // If inserting at the end
-    if (temp == nullptr || temp->next == nullptr) {
-        InsertAtTail(tail, d);
-        return;
-    }
-
-    Node* nodeToInsert = new Node(d);
-    nodeToInsert->next = temp->next;
-    temp->next = nodeToInsert;
 }
 
-void print(Node* head) {
-    Node* temp = head;
-    while (temp != nullptr) {
-        cout << temp->data << " ";
-        temp = temp->next;
+void display() {
+    Node* curr = head;
+    while (curr) {
+        cout << curr->data << " ";
+        curr = curr->next;
     }
     cout << endl;
 }
 
 int main() {
-    // Created a new node
-    Node* node1 = new Node(10);
-
-    // head and tail point to node1
-    Node* head = node1;
-    Node* tail = node1;
-
-    InsertAtHead(head, 20); 
-    InsertAtHead(head, 30);
-    InsertAtHead(head, 40);
-
-    print(head);
-
-    InsertAtTail(tail, 20);
-    InsertAtTail(tail, 30);
-    InsertAtTail(tail, 50);
-
-    print(head);
-
-    InsertAtPosition(head, tail, 2, 100);
-    print(head);
-
-    InsertAtPosition(head, tail, 18, 200);
-    print(head);
-
-    return 0;
+    int choice, val, key, pos;
+    while (true) {
+        cout << "\nChoose an operation to perform:\n";
+        cout << "1. Insert at Beginning\n";
+        cout << "2. Insert at End\n";
+        cout << "3. Insert After a Node\n";
+        cout << "4. Insert Before a Node\n";
+        cout << "5. Insert at Nth Position\n";
+        cout << "6. Delete from Beginning\n";
+        cout << "7. Delete from End\n";
+        cout << "8. Delete After a Node\n";
+        cout << "9. Delete from Nth Position\n";
+        cout << "10. Display List\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1: cin >> val; insertAtBeginning(val); break;
+            case 2: cin >> val; insertAtEnd(val); break;
+            case 3: cin >> key >> val; insertAfter(key, val); break;
+            case 4: cin >> key >> val; insertBefore(key, val); break;
+            case 5: cin >> pos >> val; insertAtPosition(pos, val); break;
+            case 6: deleteFromBeginning(); break;
+            case 7: deleteFromEnd(); break;
+            case 8: cin >> key; deleteAfter(key); break;
+            case 9: cin >> pos; deleteFromPosition(pos); break;
+            case 10: display(); break;
+            case 0: return 0;
+            default: break;
+        }
+    }
 }
